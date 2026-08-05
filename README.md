@@ -6,7 +6,7 @@ The scraper uses Selenium browser automation only. It does not use the Twitter/X
 
 ## Features
 
-- Scrapes recent X/Twitter posts for `#nifty50`, `#sensex`, `#banknifty`, and `#intraday`
+- Scrapes up to 2,000 recent X/Twitter posts per hashtag for `#nifty50`, `#sensex`, `#banknifty`, and `#intraday`
 - Extracts username, timestamp, tweet content, engagement metrics, mentions, hashtags, source hashtag, URL, and collection time
 - Handles manual login, retry flow, temporary X errors, and randomized pauses
 - Cleans and normalizes text while preserving Indian language Unicode content
@@ -83,7 +83,7 @@ Steps:
 2. Log in to X manually.
 3. Finish all onboarding screens until the normal X Home page is visible.
 4. Return to the terminal and press ENTER.
-5. The scraper searches each hashtag and saves the collected tweets.
+5. The scraper searches each hashtag and targets up to 2,000 tweets per hashtag.
 
 You can also run each step separately:
 
@@ -157,4 +157,4 @@ For more technical detail, see [docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_
 
 ## Important Note
 
-X search results can vary by account, time, rate limits, and temporary page errors. The code is configured to target 2000 tweets, but the actual count depends on what X returns during the run.
+X search results can vary by account, time, rate limits, and temporary page errors. The code is configured to target 2,000 tweets per hashtag, or about 8,000 total before deduplication, but the actual count depends on what X returns during the run.

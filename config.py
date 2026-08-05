@@ -5,7 +5,7 @@ from pathlib import Path
 @dataclass(frozen=True)
 class Settings:
     hashtags: tuple[str, ...] = ("#nifty50", "#sensex", "#banknifty", "#intraday")
-    max_tweets: int = 2000
+    max_tweets_per_hashtag: int = 2000
     max_scrolls_per_hashtag: int = 160
     scroll_pause_seconds: float = 2.2
     request_pause_min: float = 1.0

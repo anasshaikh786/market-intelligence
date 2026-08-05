@@ -14,6 +14,7 @@ The system has four stages:
    - Opens X in Chrome through Selenium
    - Uses manual login to avoid storing credentials
    - Searches hashtags such as `#nifty50`, `#sensex`, `#banknifty`, and `#intraday`
+   - Targets up to 2,000 tweets per hashtag before moving to the next hashtag
    - Extracts tweet metadata and engagement metrics
    - Retries temporary X failures such as "Try again"
 

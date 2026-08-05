@@ -32,11 +32,11 @@ class TwitterScraper:
         try:
             self._manual_login()
             for hashtag in self.settings.hashtags:
-                if len(tweets) >= self.settings.max_tweets:
-                    break
                 logger.info("Collecting hashtag={}", hashtag)
                 try:
-                    tweets.extend(self._scrape_hashtag(hashtag, self.settings.max_tweets - len(tweets)))
+                    hashtag_tweets = self._scrape_hashtag(hashtag, self.settings.max_tweets_per_hashtag)
+                    tweets.extend(hashtag_tweets)
+                    logger.info("Collected {} tweets for {}", len(hashtag_tweets), hashtag)
                 except TimeoutException as exc:
                     logger.warning("Skipping {} after search failed: {}", hashtag, exc)
         finally:
