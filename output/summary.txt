@@ -1,0 +1,18 @@
+Rows analyzed: 120
+Signal windows: 33
+Latest window: 2026-08-05 02:00:00+00:00
+Latest signal: 0.0340 (bullish)
+Confidence width: 0.0607
+
+Top hashtags:
+hashtags
+#Nifty50        72
+#nifty50        27
+#Sensex         26
+#Nifty          20
+#nifty          19
+#sensex         16
+#StockMarket    16
+#Trading        11
+#CAS             9
+#NSE             9
