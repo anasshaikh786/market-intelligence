@@ -37,6 +37,7 @@ class TwitterScraper:
                     hashtag_tweets = self._scrape_hashtag(hashtag, self.settings.max_tweets_per_hashtag)
                     tweets.extend(hashtag_tweets)
                     logger.info("Collected {} tweets for {}", len(hashtag_tweets), hashtag)
+                    time.sleep(self.settings.hashtag_cooldown_seconds)
                 except TimeoutException as exc:
                     logger.warning("Skipping {} after search failed: {}", hashtag, exc)
         finally:
@@ -87,8 +88,12 @@ class TwitterScraper:
         assert self.wait is not None
 
         since = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%d")
-        query = f"{hashtag} since:{since} -filter:replies"
-        self._open_latest_search(query)
+        queries = [
+            f"{hashtag} since:{since} -filter:replies",
+            f"{hashtag} since:{since}",
+            hashtag,
+        ]
+        self._open_latest_search(queries)
 
         collected: list[dict] = []
         last_height = 0
@@ -116,19 +121,20 @@ class TwitterScraper:
 
         return collected
 
-    def _open_latest_search(self, query: str) -> None:
+    def _open_latest_search(self, queries: list[str]) -> None:
         assert self.driver is not None
         assert self.wait is not None
 
-        encoded_query = quote_plus(query)
-        urls = [
-            f"https://x.com/search?q={encoded_query}&src=typed_query&f=live",
-            f"https://twitter.com/search?q={encoded_query}&src=typed_query&f=live",
-        ]
-
-        for url in urls:
-            if self._load_search_results(url):
-                return
+        for query in queries:
+            encoded_query = quote_plus(query)
+            urls = [
+                f"https://x.com/search?q={encoded_query}&src=typed_query&f=live",
+                f"https://twitter.com/search?q={encoded_query}&src=typed_query&f=live",
+            ]
+            for url in urls:
+                if self._load_search_results(url):
+                    logger.info("Search loaded with query: {}", query)
+                    return
 
         raise TimeoutException("Could not load tweet results after retries")
 
@@ -155,9 +161,12 @@ class TwitterScraper:
     def _click_try_again_if_visible(self) -> None:
         assert self.driver is not None
 
-        buttons = self.driver.find_elements(By.XPATH, '//span[text()="Try again"]/ancestor::*[@role="button"]')
+        buttons = self.driver.find_elements(
+            By.XPATH,
+            '//span[text()="Retry" or text()="Try again" or text()="Reload"]/ancestor::*[@role="button"]',
+        )
         if buttons:
-            logger.info("X showed a temporary error; clicking Try again")
+            logger.info("X showed a temporary error; clicking retry button")
             buttons[0].click()
             time.sleep(self._pause())
 

@@ -10,6 +10,7 @@ class Settings:
     scroll_pause_seconds: float = 2.2
     request_pause_min: float = 1.0
     request_pause_max: float = 3.0
+    hashtag_cooldown_seconds: float = 8.0
     headless: bool = False
     raw_file: Path = Path("data/raw_tweets.parquet")
     clean_file: Path = Path("data/clean_tweets.parquet")

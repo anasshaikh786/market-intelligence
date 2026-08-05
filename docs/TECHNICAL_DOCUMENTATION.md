@@ -80,7 +80,8 @@ X can show temporary errors, onboarding screens, and rate-limit style behavior. 
 - using manual login instead of storing credentials
 - opening direct search URLs instead of relying on the Explore search box
 - retrying failed searches
-- clicking visible "Try again" buttons
+- clicking visible "Retry" or "Try again" buttons
+- falling back from advanced search queries to simpler hashtag searches
 - using randomized pauses between actions
 - skipping one failed hashtag without losing earlier collected data
 

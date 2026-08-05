@@ -71,6 +71,8 @@ output/signal_plot.png
 output/summary.txt
 ```
 
+Existing output files are overwritten on each run. If `output/trading_signals.csv` is open in Excel or another app, the code saves a timestamped CSV copy instead of crashing.
+
 ## Run Real X/Twitter Collection
 
 ```powershell
@@ -158,3 +160,4 @@ For more technical detail, see [docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_
 ## Important Note
 
 X search results can vary by account, time, rate limits, and temporary page errors. The code is configured to target 2,000 tweets per hashtag, or about 8,000 total before deduplication, but the actual count depends on what X returns during the run.
+When X shows a temporary `Retry` or `Try again` screen, the scraper clicks it and falls back to simpler search queries if needed.
