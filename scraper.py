@@ -32,11 +32,19 @@ class TwitterScraper:
         try:
             self._manual_login()
             for hashtag in self.settings.hashtags:
-                logger.info("Collecting hashtag={}", hashtag)
+                target = self.settings.max_tweets_per_hashtag
+                logger.info("Collecting hashtag={} target={}", hashtag, target)
                 try:
-                    hashtag_tweets = self._scrape_hashtag(hashtag, self.settings.max_tweets_per_hashtag)
+                    hashtag_tweets = self._scrape_hashtag(hashtag, target)
                     tweets.extend(hashtag_tweets)
                     logger.info("Collected {} tweets for {}", len(hashtag_tweets), hashtag)
+                    if len(hashtag_tweets) < target:
+                        logger.warning(
+                            "Target was {} for {}, but X returned only {} unique tweets in this session",
+                            target,
+                            hashtag,
+                            len(hashtag_tweets),
+                        )
                     time.sleep(self.settings.hashtag_cooldown_seconds)
                 except TimeoutException as exc:
                     logger.warning("Skipping {} after search failed: {}", hashtag, exc)
@@ -83,7 +91,7 @@ class TwitterScraper:
             except TimeoutException:
                 print("I could not confirm the Home page yet. Open x.com/home in this browser, then press ENTER again.")
 
-    def _scrape_hashtag(self, hashtag: str, remaining: int) -> list[dict]:
+    def _scrape_hashtag(self, hashtag: str, target: int) -> list[dict]:
         assert self.driver is not None
         assert self.wait is not None
 
@@ -107,8 +115,12 @@ class TwitterScraper:
                     continue
                 self.seen_ids.add(tweet["tweet_id"])
                 collected.append(tweet)
-                if len(collected) >= remaining:
+                if len(collected) >= target:
                     return collected
+
+            if self._page_has_rate_limit_message():
+                logger.warning("X rate limit message detected while collecting {}; stopping this hashtag", hashtag)
+                break
 
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(self._pause())
@@ -147,6 +159,11 @@ class TwitterScraper:
             time.sleep(self._pause())
             self._click_try_again_if_visible()
 
+            if self._page_has_rate_limit_message():
+                logger.warning("X rate limit detected; waiting {} seconds", self.settings.rate_limit_cooldown_seconds)
+                time.sleep(self.settings.rate_limit_cooldown_seconds)
+                self._click_try_again_if_visible()
+
             try:
                 self.wait.until(expected.presence_of_element_located((By.XPATH, '//article[@data-testid="tweet"]')))
                 time.sleep(self._pause())
@@ -169,6 +186,12 @@ class TwitterScraper:
             logger.info("X showed a temporary error; clicking retry button")
             buttons[0].click()
             time.sleep(self._pause())
+
+    def _page_has_rate_limit_message(self) -> bool:
+        assert self.driver is not None
+
+        page_text = self.driver.page_source.lower()
+        return "rate limit exceeded" in page_text or "something went wrong. try reloading" in page_text
 
     def _parse_tweet_card(self, card, source_hashtag: str) -> dict | None:
         try:

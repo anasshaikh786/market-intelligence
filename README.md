@@ -6,7 +6,7 @@ The scraper uses Selenium browser automation only. It does not use the Twitter/X
 
 ## Features
 
-- Scrapes up to 2,000 recent X/Twitter posts per hashtag for `#nifty50`, `#sensex`, `#banknifty`, and `#intraday`
+- Targets up to 2,000 recent X/Twitter posts per hashtag for `#nifty50`, `#sensex`, `#banknifty`, and `#intraday`
 - Extracts username, timestamp, tweet content, engagement metrics, mentions, hashtags, source hashtag, URL, and collection time
 - Handles manual login, retry flow, temporary X errors, and randomized pauses
 - Cleans and normalizes text while preserving Indian language Unicode content
@@ -95,25 +95,34 @@ python main.py process
 python main.py analyze
 ```
 
-## Current Sample Output
+## Current Output
 
-The included run produced:
+The latest X/Twitter collection run targeted up to 2,000 tweets per hashtag. X rate-limited the browser session during collection, so the actual dataset contains the tweets that X returned before limiting the searches.
 
 ```text
-Raw tweets: 327
-Clean tweets: 322
-Signal windows: 84
-Latest signal: 0.0238 bullish
+Raw tweets: 521
+Clean tweets: 516
+Signal windows: 90
+Latest signal: 0.0435 bullish
+```
+
+Raw tweets by source hashtag:
+
+```text
+#nifty50      248
+#sensex       210
+#intraday      58
+#banknifty      5
 ```
 
 Top hashtags from the run included:
 
 ```text
-#banknifty
-#nifty
-#Intraday
+#Nifty50
+#Sensex
 #sensex
-#stockmarket
+#Nifty
+#nifty
 ```
 
 ## Output Files
@@ -159,5 +168,6 @@ For more technical detail, see [docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_
 
 ## Important Note
 
-X search results can vary by account, time, rate limits, and temporary page errors. The code is configured to target 2,000 tweets per hashtag, or about 8,000 total before deduplication, but the actual count depends on what X returns during the run.
+X search results can vary by account, time, rate limits, and temporary page errors. The code is configured to target up to 2,000 tweets per hashtag, or about 8,000 total before deduplication, but the actual count depends on what X returns during the run.
 When X shows a temporary `Retry` or `Try again` screen, the scraper clicks it and falls back to simpler search queries if needed.
+If X rate limits the session or stops returning new tweet cards, the scraper saves the tweets collected so far and the analysis runs on that available dataset.
